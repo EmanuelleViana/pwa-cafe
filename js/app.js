@@ -30,7 +30,6 @@ function loadData() {
     ajax.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             data_json = JSON.parse(this.responseText);
-            //console.log(data_json);
             printCafes();
             cacheDinamico();
         }
@@ -63,7 +62,6 @@ function printCafes() {
 }
 
 function printCafe(id, title) {
-    console.log('print ', id, title)
     window.scrollTo(0, 0);
     nome_cafe = title;
     title_cafe.innerHTML = title;
@@ -84,12 +82,10 @@ function printCafe(id, title) {
 }
 
 card_composicao_cafe = function (coffee, ingredients, image_ingredients, informacoes, emVenda) {
-    console.log(ingredients)
     let ingredientes = '';
     for (let i = 0; i < ingredients.length; i++) {
         ingredientes += `<p>${ingredients[i]}</p>`
     }
-    console.log(ingredientes)
 
     return `<div class="col col-lg-12">            
                 <div class="card h-100">
@@ -176,16 +172,11 @@ let janelaInstalacao = null;
 window.addEventListener('beforeinstallprompt', gravarJanela);
 
 function gravarJanela(evt) {
-    console.log('janelaInstalacao1 instalacao', janelaInstalacao)
-
     janelaInstalacao = evt;
 }
 
 let inicializarInstalacao = function () {
-    console.log('Inicializar instalacao')
     setTimeout(function () {
-        console.log('janelaInstalacao instalacao', janelaInstalacao)
-
         if (janelaInstalacao != null) {
             btInstall.removeAttribute("hidden");
         }

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Café&Aroma</title>
+  <link href="manifest.json" rel="manifest">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+  <link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+
+  <!-- iOS meta tags and icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Cafe&Aroma">
+  <link rel="apple-touch-icon" href="icons/152.png">
+
+  <meta name="description" content="Cafe&Aroma">
+  <meta name="theme-color" content="#855033" />
+
+</head>
+
+<body>
+
+  <header class="container-fluid fixed-top">
+    <img src="images/logoc.png" class="logo">
+
+    <nav class="navbar navbar-expand-lg navbar-light float-end no-transition">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Favoritos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Meu perfil</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Sair</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="container">
+
+    <div class="alert alert-warning" role="alert" id="msg_offline">
+      <img src="images/offline.png" style="width: 30px;">
+      Você está acessando a versão off-line desta aplicação. Algumas funcionalidades podem estar desativadas.
+    </div>
+    <!--Container que lista os cafes cadastrados-->
+
+    <section id="main_cafes">
+
+      <div class="row">
+
+      </div>
+
+    </section>
+
+      <!--Container que é chamado para listar os cafes-->  
+      <section id="cafes">          
+        <div class="row fixed-top">
+
+        <div class="col-12">
+          <div class="cafe_toolbar">
+            <button type="button" id="btnVoltar" onclick="javascript:voltarTela();" class="btn btn-light">
+              <</button>
+              <span id="title_cafe">Nome do Cafe</span></div>
+            </div>
+        </div>
+
+      </div>
+
+      <div class="row" id="cafes_content">        
+
+      </div>
+
+    </section>
+
+    <!--Modal-->
+
+    <div class="modal fade" id="modalCafe" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="nome_cafe">Nome do Cafe</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><span id="desc_cafe"><strong>Descrição:</strong> SIM</span></p>
+            <p><span id="venda_cafe"><strong>Em venda:</strong> SIM</span></p>          
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="container-fluid fixed-bottom">
+    <div class="acoes" role="group" aria-label="Basic example">
+      <button type="button" class="btn favoritos mr-4">Favoritos</button>
+    </div>
+  </footer>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /*
+    
+    Variáveis Globais
+    
+    */
+    let web_service = "coffee.json";
+    let data_json;
+    let main_cafes = document.getElementById("main_cafes");
+    let cafes = document.getElementById("cafes");
+    let cafes_content = document.getElementById("cafes_content");
+    let btnVoltar = document.getElementById("btnVoltar");
+    let title_cafe = document.getElementById("title_cafe");
+    let btInstall = document.getElementById("btInstall");
+    let nome_cafe;
+    /*
+    
+    Funções Principais
+    
+    */
+
+    //Trazer dado do servidor
+    function loadData() {
+
+      let ajax = new XMLHttpRequest();
+
+      ajax.open("GET", web_service, true);
+      ajax.send();
+
+      ajax.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          data_json = JSON.parse(this.responseText);
+          printCafes();
+        }
+
+      }
+
+    }
+
+    loadData();
+
+//Montar o card de cafes
+function printCafes() {
+
+      let html_cafes = '<div class="row">';
+
+      if (data_json.length > 0) {
+
+        for (let i = 0; i < data_json.length; i++) {
+          html_cafes += card_cafes(i, data_json[i].title, data_json[i].address, data_json[i].image, data_json[i].site);
+        }
+
+      } else {
+        html_cafes = msg_alert("Não há cafés cadastrados", "warning");
+      }
+
+      html_cafes += '</div>';
+
+      main_cafes.innerHTML = html_cafes;
+
+    }
+
+    function printCafe(id, title) {
+      window.scrollTo(0, 0);
+      nome_cafe = title;
+      title_cafe.innerHTML = title;
+      main_cafes.style.display = "none";
+      cafes.style.display = "block";
+
+      let html_cafes = '<div class="info-cafe">';
+      if (data_json[id].ingredients.length > 0) {
+
+        html_cafes += card_composicao_cafe(data_json[id].title, data_json[id].ingredients, data_json[id].image_ingredients, data_json[id].info, data_json[id].sale);
+
+
+      } else {
+        html_cafes = msg_alert("Não há ingredientes cadastrados para este cafe", "warning");
+      }
+
+      cafes_content.innerHTML = html_cafes;
+    }
+
+    card_composicao_cafe = function (coffee, ingredients, image_ingredients, informacoes, emVenda) {
+      let ingredientes = '';
+      for (let i = 0; i < ingredients.length; i++) {
+        ingredientes += `<p>${ingredients[i]}</p>`
+      }
+      return `<div class="col col-lg-12">            
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-5 text-center">Ingredientes</h3>   `
+        + '<div class="ingredientes text-center">' +
+        ingredientes
+        + "</div>" +
+        `<span class="container_cafe"><img src="${image_ingredients}" class="image_cafe"></span>
+                    </div>
+                    <div class="card-footer">
+                    <div class="btn-group w-100" role="group" aria-label="Ações">
+                    <a href="#" class="btn btn-conhecer-mais w-50" data-bs-toggle="modal" data-bs-target="#modalCafe" onClick="javascript:changeModal('${coffee}', '${informacoes}','${emVenda}')">Conhecer Mais</a>
+                    </div>
+                </div>
+                </div>
+            </div>`;
+
+    }
+
+    function changeModal(name, info, disponivel) {
+
+      document.getElementById("nome_cafe").innerHTML = name;
+    document.getElementById("desc_cafe").innerHTML = "<strong>Descrição:</strong>&nbsp;" + info;
+    document.getElementById("venda_cafe").innerHTML = "<strong>Em venda:</strong>&nbsp;" + disponivel;
+
+    }
+
+    function voltarTela() {
+      main_cafes.style.display = "block";
+    cafes.style.display = "none";
+    }
+
+
+    /*
+    
+    Primitive Template Engines
+    
+    */
+
+    msg_alert = function (texto, style) {
+      return '<div class="alert alert-' + style + '" role="alert">' + texto + '</div>';
+    }
+
+    card_cafes = function (id, title, descricao, imagem, site) {
+      return `<div class="col-12 col-lg-6 coffee">            
+                <div class="card" onclick="javascript:printCafe(${id},'${title}')">
+                    <div class="card-body">
+                        <div class="row">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-center" style="height: 100%;">
+                                <img src="${imagem}" class="logo_cafe">
+                                </div>                      
+                            </div>
+                            </div>
+                            <div class="row">
+
+                            <div >   
+                                <h5 class="text-center mt-4	card-title">${title}</h5>                                            
+                            </div>
+                        </div>              
+                    </div>
+                </div>
+            </div> `;
+    }
+
+  </script>
+
+
+</body>
+
+</html>
